@@ -1,0 +1,78 @@
+# manifest.yaml -- pinned environment for the Biscuit story-to-comic demo.
+#
+# HONESTY NOTE: the sha256 hashes and git commits below were CAPTURED ON THE
+# RUNPOD POD on 2026-05-30 (NVIDIA A40) after the real download/clone+run
+# (sha256sum <file>; git -C <node> rev-parse HEAD). They are not invented, and
+# nothing is pinned to ':latest'. The optional ControlNet pieces were NOT
+# installed in this run (the headline A/B uses IPAdapter only), so they are
+# marked accordingly rather than given fake hashes.
+#
+# All repo+filename pairs were verified against Hugging Face on 2026-05-30.
+
+runtime:
+  runpod_image: "runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04"   # not ':latest'
+  python: "3.11"
+  comfyui_commit: "6e1ef2311ba73e68330e4041b34cdfd9e8fb6aa2"
+
+models:
+  - name: DreamShaper 8 (SD1.5 base checkpoint)
+    repo: fofr/comfyui
+    filename: checkpoints/dreamshaper_8.safetensors
+    target_dir: models/checkpoints
+    target_filename: dreamshaper_8.safetensors
+    size: "2.13 GB"
+    sha256: 879db523c30d3b9017143d56705015e15a2cb5628762c11d086fed9538abd7fd
+    note: >-
+      Upstream author is Lykon (Civitai model 4384). Lykon's HF repo
+      'Lykon/dreamshaper-8' is diffusers-format only (no single-file
+      checkpoint at root) and 'Lykon/DreamShaper' main only carries LCM /
+      v6 variants, so we pull the single-file 'dreamshaper_8.safetensors'
+      from the fofr/comfyui mirror (verified present, 2.13 GB, no auth).
+
+  - name: IP-Adapter Plus (SD1.5)
+    repo: h94/IP-Adapter
+    filename: models/ip-adapter-plus_sd15.safetensors
+    target_dir: models/ipadapter
+    target_filename: ip-adapter-plus_sd15.safetensors
+    sha256: a1c250be40455cc61a43da1201ec3f1edaea71214865fb47f57927e06cbe4996
+    note: ip-adapter-plus_sd15 (NOT plus-face). Verified in h94/IP-Adapter/models.
+
+  - name: CLIP-ViT-H image encoder (for IP-Adapter)
+    repo: h94/IP-Adapter
+    filename: models/image_encoder/model.safetensors
+    target_dir: models/clip_vision
+    target_filename: CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors
+    size: "2.53 GB"
+    sha256: 6ca9667da1ca9e0b0f75e46bb030f7e011f44f86cbfb8d5a36590fcd7507b030
+    note: >-
+      Source file is h94/IP-Adapter/models/image_encoder/model.safetensors
+      (OpenCLIP ViT-H/14, laion2B-s32B-b79K). It is RENAMED on download to a
+      self-describing name so CLIPVisionLoader lists it clearly.
+
+  - name: ControlNet v1.1 canny (SD1.5) -- OPTIONAL
+    repo: comfyanonymous/ControlNet-v1-1_fp16_safetensors
+    filename: control_v11p_sd15_canny_fp16.safetensors
+    target_dir: models/controlnet
+    target_filename: control_v11p_sd15_canny_fp16.safetensors
+    size: "723 MB"
+    sha256: "not_downloaded (optional; WITH_CONTROLNET unset in the 2026-05-30 run)"
+    required: false
+    note: >-
+      Not used by the headline A/B (the only variable there is IPAdapter
+      weight). Included for the optional ControlNet experiment. fp16 build.
+
+custom_nodes:
+  - name: ComfyUI_IPAdapter_plus
+    repo: https://github.com/cubiq/ComfyUI_IPAdapter_plus
+    commit: "a0f451a5113cf9becb0847b92884cb10cbdec0ef"
+    required: true
+    note: >-
+      Provides IPAdapterModelLoader, IPAdapterAdvanced, IPAdapterUnifiedLoader.
+      (CLIPVisionLoader is a ComfyUI CORE node, not from this repo.)
+      Node class names + inputs read from IPAdapterPlus.py on 2026-05-30.
+
+  - name: comfyui_controlnet_aux
+    repo: https://github.com/Fannovel16/comfyui_controlnet_aux
+    commit: "not_installed (optional; not part of the 2026-05-30 run)"
+    required: false
+    note: Canny/preprocessors for the OPTIONAL ControlNet experiment only.

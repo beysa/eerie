@@ -1,0 +1,16 @@
+# GPU-verified stack — this exact set ran the full pipeline end-to-end on an
+# NVIDIA A40 (torch 2.4 / CUDA 12.4). The hard constraints are transformers<5
+# and numpy<2: newer majors break the Stable Diffusion 1.5 + diffusers path
+# (transformers 5.x expects a torch distributed API that torch 2.4 lacks).
+torch>=2.0,<3
+numpy>=1.24,<2
+transformers==4.46.3
+diffusers==0.31.0
+accelerate==0.34.2
+huggingface_hub==0.25.2
+safetensors>=0.4.0
+sentencepiece>=0.1.99
+protobuf>=3.20
+scipy>=1.10
+nltk>=3.8
+Pillow>=9.4

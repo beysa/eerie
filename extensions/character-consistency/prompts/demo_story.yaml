@@ -1,0 +1,91 @@
+# demo_story.yaml -- human-readable mirror of the prompts, seeds and sampler
+# settings used by run.py for the "Biscuit the bear cub" story-to-comic A/B.
+#
+# SOURCE OF TRUTH: run.py. These values are duplicated here for readability and
+# review; run.py bakes them in as constants and is what actually executes. If
+# the two ever disagree, run.py wins. (run.py does NOT currently read this file;
+# it is documentation of the exact run.)
+#
+# The story: Biscuit, a small bear cub, in a children's-book world that turns
+# quietly uncanny -- the cozy-to-eerie arc that bridges to the sibling `eerie`
+# repo.
+
+story:
+  name: "Biscuit the bear cub"
+  description: >-
+    A small round brown bear cub named Biscuit, in a soft painterly
+    children's-book world that drifts from cozy to quietly eerie across four
+    panels.
+
+# --- Models (filenames as ComfyUI sees them; see manifest.yaml for sources) ---
+models:
+  checkpoint: "dreamshaper_8.safetensors"            # models/checkpoints/
+  ipadapter: "ip-adapter-plus_sd15.safetensors"      # models/ipadapter/
+  clip_vision: "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"  # models/clip_vision/
+
+# --- Shared sampler settings: IDENTICAL for the reference and every panel ---
+sampler:
+  steps: 30
+  cfg: 7.0
+  sampler_name: "dpmpp_2m"
+  scheduler: "karras"
+  denoise: 1.0
+  width: 512
+  height: 512
+
+# Negative prompt: identical for the reference and every panel.
+negative_prompt: >-
+  photo, realistic, photograph, 3d render, cgi, deformed, extra limbs, text,
+  watermark, signature, blurry, low quality, lowres
+
+# --- IPAdapter A/B: the ONLY variable that changes between before and after ---
+ipadapter:
+  node: "IPAdapterAdvanced"
+  weight_type: "linear"
+  combine_embeds: "concat"
+  embeds_scaling: "V only"
+  start_at: 0.0
+  end_at: 1.0
+  weight_before: 0.0   # control -> identical to vanilla SD1.5 at same seed/prompt
+  weight_after: 0.8    # reference character injected
+
+# --- Character reference: text2img only, NO IPAdapter. Produced once. ---
+reference:
+  filename: "character_ref.png"   # server-side name after upload to ComfyUI
+  seed: 770077
+  prompt: >-
+    character reference sheet of Biscuit, a small round brown bear cub with a
+    cream-colored belly, big dark round eyes, a tiny black nose, and a red
+    knitted scarf, storybook illustration, soft painterly children's book art,
+    gentle watercolor and gouache, neutral grey background, full body, centered
+
+# --- The 4 fixed scenes. Each is rendered twice (weight_before, weight_after),
+#     same seed both times. ---
+scenes:
+  - name: "01_porch"
+    seed: 111111
+    prompt: >-
+      Biscuit the bear cub sitting on a wooden cabin porch at dusk, holding a
+      small lantern, warm cozy storybook illustration, soft painterly
+      children's book art, gentle watercolor and gouache
+
+  - name: "02_forest_path"
+    seed: 222222
+    prompt: >-
+      Biscuit the bear cub walking down a misty forest path between tall dark
+      pines, lantern glowing, slightly eerie quiet mood, storybook
+      illustration, soft painterly children's book art
+
+  - name: "03_old_door"
+    seed: 333333
+    prompt: >-
+      Biscuit the bear cub standing before a crooked old wooden door in a
+      hollow tree, faint glow leaking through the cracks, uneasy curious mood,
+      storybook illustration, soft painterly art
+
+  - name: "04_clearing"
+    seed: 444444
+    prompt: >-
+      Biscuit the bear cub alone in a moonlit clearing surrounded by pale
+      floating fireflies, wide quiet uncanny atmosphere, storybook
+      illustration, soft painterly children's book art, muted palette

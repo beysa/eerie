@@ -1,0 +1,22 @@
+# Dependencies for the local driver side of the Biscuit story-to-comic demo.
+#
+# NOTE: run.py itself imports ONLY the Python standard library (argparse, io,
+# json, os, sys, time, urllib, uuid) -- it talks to ComfyUI over plain HTTP and
+# needs nothing here to run the A/B. You can `python run.py` with a bare
+# interpreter.
+#
+# These three are the conventional extras for working with the repo around the
+# script and are listed so `pip install -r requirements.txt` gives a complete
+# tooling environment:
+#   - requests : ergonomic HTTP client if you script against the ComfyUI API
+#                yourself (run.py uses urllib; requests is the friendlier swap).
+#   - PyYAML   : to load prompts/demo_story.yaml (the human-readable mirror of
+#                run.py's prompts/seeds) in your own tooling.
+#   - Pillow   : to open / inspect / assemble the generated PNGs in
+#                outputs/before/ and outputs/after/.
+#
+# The heavy ML stack (torch, diffusers, ComfyUI itself) lives ON THE POD, not
+# here -- this machine only drives the pod over the SSH tunnel.
+requests>=2.28
+PyYAML>=6.0
+Pillow>=9.4

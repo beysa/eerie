@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# eerie runtime output
+output/
+
+# stray Windows / tooling artifacts
+Microsoft/
+.claude/
+
+# private planning notes — keep out of the public portfolio repo
+CLAUDE_CODE_BRIEFING.md

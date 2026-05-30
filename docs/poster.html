@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eerie — Visual Storytelling from Fine-Tuned Summarization &amp; Image Generation</title>
+<style>
+  /* ============================================================
+     eerie — research / portfolio poster
+     Single self-contained file. A1-ish landscape (841 x 594 mm).
+     Restrained palette: ink navy, slate, parchment, muted teal accent.
+     ============================================================ */
+
+  :root{
+    --ink:#14213d;          /* deep navy — primary text / structure */
+    --slate:#3a4a63;        /* secondary text */
+    --muted:#6b7689;        /* captions, fine print */
+    --line:#c9d2de;         /* hairlines / borders */
+    --paper:#f6f4ee;        /* parchment page */
+    --card:#ffffff;         /* panels */
+    --band:#eef1f6;         /* soft fill blocks */
+    --accent:#2f6f6a;       /* muted teal — the one accent */
+    --accent-soft:#dcebe9;  /* accent tint */
+    --gold:#9a7b3f;         /* secondary accent for "core" emphasis */
+    --gold-soft:#f0e8d6;
+    --core:#1f4e4a;         /* CORE label */
+    --ext:#7a5c7a;          /* EXTENSION label (plum) */
+    --ext-soft:#efe6ef;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background:#5b6472;       /* neutral backdrop behind the page when viewed on screen */
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* The poster sheet — fixed physical landscape size for printing. */
+  .sheet{
+    width:841mm; height:594mm;
+    margin:10mm auto;
+    background:var(--paper);
+    padding:14mm 16mm 12mm 16mm;
+    display:flex; flex-direction:column;
+    box-shadow:0 6mm 18mm rgba(0,0,0,.35);
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* thin rule frame inside the sheet */
+  .sheet::before{
+    content:""; position:absolute; inset:7mm;
+    border:0.4mm solid var(--line);
+    pointer-events:none;
+  }
+
+  /* ---------- HEADER ---------- */
+  header.masthead{
+    border-bottom:1.1mm solid var(--ink);
+    padding-bottom:6mm; margin-bottom:7mm;
+    display:flex; align-items:flex-end; justify-content:space-between; gap:14mm;
+  }
+  .title-block{ max-width:560mm; }
+  .eyebrow{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.42em; text-transform:uppercase;
+    font-size:4.6mm; color:var(--accent); font-weight:700;
+    margin:0 0 3mm 0;
+  }
+  h1{
+    font-size:19mm; line-height:1.0; margin:0; font-weight:700;
+    letter-spacing:-0.3mm; color:var(--ink);
+  }
+  h1 .em{ font-style:italic; color:var(--accent); }
+  .subtitle{
+    font-size:7.4mm; line-height:1.12; margin:3.5mm 0 0 0;
+    color:var(--slate); font-weight:400; max-width:540mm;
+  }
+  .byline{
+    text-align:right; min-width:200mm;
+    font-family:"Helvetica Neue",Arial,sans-serif; color:var(--slate);
+  }
+  .byline .authors{ font-size:5.6mm; font-weight:700; color:var(--ink); line-height:1.35; }
+  .byline .authors .sid{ font-weight:400; color:var(--muted); font-size:4.2mm; }
+  .byline .meta{ font-size:4.5mm; margin-top:3mm; line-height:1.55; color:var(--slate); }
+  .byline .meta b{ color:var(--ink); }
+  .byline .anadol{
+    margin-top:3.5mm; font-style:italic; font-family:Georgia,serif;
+    font-size:4.7mm; color:var(--accent);
+  }
+
+  /* ---------- MAIN GRID ---------- */
+  main{
+    flex:1; display:grid;
+    grid-template-columns:1.42fr 1fr;
+    grid-template-rows:auto 1fr;
+    gap:8mm 9mm; min-height:0;
+  }
+  .panel{
+    background:var(--card);
+    border:0.4mm solid var(--line);
+    border-radius:2mm;
+    padding:6.5mm 7mm;
+    display:flex; flex-direction:column; min-height:0;
+  }
+  .panel-head{
+    display:flex; align-items:baseline; gap:4mm;
+    margin:0 0 4.5mm 0; padding-bottom:3mm;
+    border-bottom:0.4mm solid var(--line);
+  }
+  .panel-head .n{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-weight:800;
+    color:var(--accent); font-size:5mm; letter-spacing:.05em;
+    border:0.5mm solid var(--accent); border-radius:50%;
+    width:8.5mm; height:8.5mm; display:flex; align-items:center; justify-content:center;
+    flex:0 0 auto;
+  }
+  .panel-head h2{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    font-size:5.8mm; letter-spacing:.02em; margin:0; color:var(--ink); font-weight:700;
+    text-transform:uppercase;
+  }
+  .panel-head .sub{
+    margin-left:auto; font-family:"Helvetica Neue",Arial,sans-serif;
+    font-size:3.9mm; color:var(--muted); font-weight:600; letter-spacing:.04em;
+  }
+
+  /* span helpers */
+  .col-left  { grid-column:1; }
+  .col-right { grid-column:2; }
+
+  p,li{ font-size:4.5mm; line-height:1.42; color:var(--slate); }
+  .lede{ font-size:5mm; line-height:1.4; color:var(--ink); margin:0 0 4mm 0; }
+
+  /* ===== PIPELINE PANEL ===== */
+  .pipeline-wrap{ flex:1; display:flex; flex-direction:column; }
+  .pipeline-svg{ width:100%; height:auto; display:block; }
+  .pipe-note{
+    margin-top:4mm; font-size:4mm; color:var(--muted); line-height:1.45;
+    border-top:0.4mm dotted var(--line); padding-top:3.5mm;
+  }
+  .pipe-note b{ color:var(--slate); }
+
+  /* tag chips for CORE / EXTENSION */
+  .tag{
+    display:inline-block; font-family:"Helvetica Neue",Arial,sans-serif;
+    font-size:3.3mm; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+    padding:0.6mm 2.2mm; border-radius:1mm; vertical-align:middle;
+  }
+  .tag.core{ background:var(--core); color:#eaf3f1; }
+  .tag.ext { background:var(--ext-soft); color:var(--ext); border:0.4mm solid #d8c3d8; }
+
+  /* ===== FINE-TUNED & PUBLISHED PANEL ===== */
+  .models{ display:flex; flex-direction:column; gap:5mm; }
+  .model-card{
+    border:0.5mm solid var(--line); border-left:2.4mm solid var(--accent);
+    border-radius:1.5mm; padding:5mm 5.5mm; background:var(--band);
+  }
+  .model-card .mc-top{ display:flex; align-items:baseline; gap:3mm; flex-wrap:wrap; }
+  .model-card .repo{
+    font-family:"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+    font-size:5.4mm; font-weight:700; color:var(--ink);
+  }
+  .model-card .role{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:4mm; color:var(--accent);
+    font-weight:700; letter-spacing:.02em;
+  }
+  .model-card .hf{
+    margin-left:auto; font-family:"SFMono-Regular",Menlo,Consolas,monospace;
+    font-size:3.5mm; color:var(--muted); text-decoration:none; border-bottom:0.3mm dotted var(--muted);
+  }
+  .model-card dl{ margin:3.5mm 0 0 0; display:grid; grid-template-columns:auto 1fr; gap:1.6mm 3.5mm; }
+  .model-card dt{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:3.5mm; font-weight:700;
+    color:var(--muted); text-transform:uppercase; letter-spacing:.08em; white-space:nowrap;
+  }
+  .model-card dd{ margin:0; font-size:4.1mm; color:var(--slate); line-height:1.3; }
+  .model-card dd code{
+    font-family:"SFMono-Regular",Menlo,Consolas,monospace; font-size:3.8mm;
+    background:#fff; padding:0.3mm 1.4mm; border:0.3mm solid var(--line); border-radius:.8mm; color:var(--ink);
+  }
+  .model-card dd.ds b{ color:var(--ink); font-weight:700; }
+
+  .style-transfer-row{
+    margin-top:1mm; border:0.5mm solid var(--line); border-radius:1.5mm;
+    padding:3.5mm 5mm; background:#fff; display:flex; align-items:center; gap:4mm;
+  }
+  .style-transfer-row .lbl{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:3.6mm; font-weight:800;
+    text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
+  }
+  .style-transfer-row code{
+    font-family:"SFMono-Regular",Menlo,Consolas,monospace; font-size:4.1mm; color:var(--ink); font-weight:700;
+  }
+  .style-transfer-row .desc{ font-size:3.9mm; color:var(--slate); margin-left:auto; text-align:right; }
+
+  /* ===== RESEARCH PROGRESSION STRIP ===== */
+  .progression{
+    grid-column:1 / -1;
+    background:var(--ink); color:#eef1f6; border-radius:2mm;
+    padding:5.5mm 7mm; display:flex; flex-direction:column;
+  }
+  .progression .panel-head{ border-bottom-color:#33405c; margin-bottom:4mm; }
+  .progression .panel-head h2{ color:#fff; }
+  .progression .panel-head .n{ color:#7fd0c8; border-color:#7fd0c8; }
+  .progression .panel-head .sub{ color:#9aa6bd; }
+  .prog-track{ display:flex; align-items:stretch; gap:0; }
+  .prog-step{ flex:1; padding:0 6mm; position:relative; }
+  .prog-step:first-child{ padding-left:0; }
+  .prog-step:not(:last-child)::after{
+    content:"\203A"; position:absolute; right:-2.6mm; top:50%; transform:translateY(-50%);
+    font-size:11mm; color:#4f5f7e; line-height:0;
+  }
+  .prog-step .stage{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:3.7mm; font-weight:800;
+    letter-spacing:.14em; text-transform:uppercase; margin-bottom:2mm;
+  }
+  .prog-step.s-core  .stage{ color:#8fe0d7; }
+  .prog-step.s-ext   .stage{ color:#d6b9d6; }
+  .prog-step h3{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:5mm; margin:0 0 2mm 0; color:#fff; font-weight:700;
+    line-height:1.12;
+  }
+  .prog-step p{ font-size:4mm; color:#c4ccdc; line-height:1.34; margin:0; }
+  .prog-step .tagline{
+    display:inline-block; margin-top:2.5mm; font-family:"Helvetica Neue",Arial,sans-serif;
+    font-size:3.2mm; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
+    padding:0.6mm 2.2mm; border-radius:1mm;
+  }
+  .prog-step.s-core .tagline{ background:#1f4e4a; color:#bfeae4; }
+  .prog-step.s-ext  .tagline{ background:#4a3a4a; color:#e3cfe3; }
+
+  /* ===== RESULTS PANEL ===== */
+  .results-grid{ display:grid; grid-template-columns:1fr 1fr; gap:5mm 6mm; flex:1; min-height:0; }
+  .result-block{ display:flex; flex-direction:column; min-height:0; }
+  .result-block .rb-head{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:4.2mm; font-weight:700;
+    color:var(--ink); margin:0 0 1mm 0;
+  }
+  .result-block .rb-head .pill{
+    font-size:3mm; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
+    padding:0.5mm 1.8mm; border-radius:1mm; margin-left:2mm; vertical-align:middle;
+  }
+  .pill.core{ background:var(--core); color:#eaf3f1; }
+  .pill.ext{ background:var(--ext-soft); color:var(--ext); border:0.4mm solid #d8c3d8; }
+  .result-block .rb-sub{ font-size:3.7mm; color:var(--muted); margin:0 0 3mm 0; line-height:1.3; }
+
+  .imgrow{ display:flex; gap:3mm; flex:1; min-height:0; }
+  figure.frame{ margin:0; flex:1; display:flex; flex-direction:column; min-height:0; }
+  figure.frame .imgbox{
+    flex:1; min-height:0; border:0.5mm solid var(--line); border-radius:1.5mm;
+    background:var(--band); display:flex; align-items:center; justify-content:center; overflow:hidden;
+    position:relative;
+  }
+  figure.frame img{ width:100%; height:100%; object-fit:cover; display:block; }
+  /* graceful placeholder shown behind images (visible if asset missing) */
+  figure.frame .imgbox::after{
+    content:attr(data-ph); position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:4mm; font-family:"Helvetica Neue",Arial,sans-serif; font-size:3.4mm;
+    color:var(--muted); z-index:-1; line-height:1.4;
+  }
+  figure.frame figcaption{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:3.4mm; color:var(--muted);
+    margin-top:1.6mm; text-align:center; line-height:1.25;
+  }
+  figure.frame figcaption b{ color:var(--slate); }
+
+  .arrowcol{ display:flex; flex-direction:column; align-items:center; justify-content:center; flex:0 0 9mm; }
+  .arrowcol .ar{ font-size:8mm; color:var(--accent); line-height:1; }
+  .arrowcol .ar-lbl{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:2.9mm; color:var(--muted);
+    writing-mode:vertical-rl; text-orientation:mixed; letter-spacing:.06em; margin-top:1.5mm; text-transform:uppercase;
+  }
+
+  .story-card{
+    border:0.5mm solid var(--line); border-radius:1.5mm; background:#fff; padding:3.5mm 4.5mm; margin-bottom:3mm;
+  }
+  .story-card .q{
+    font-family:Georgia,serif; font-style:italic; font-size:4.2mm; color:var(--ink); line-height:1.35; margin:0;
+  }
+  .story-card .cite{
+    font-family:"Helvetica Neue",Arial,sans-serif; font-size:3.4mm; color:var(--muted); margin-top:2mm;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer.colophon{
+    margin-top:6mm; padding-top:4mm; border-top:0.7mm solid var(--ink);
+    display:flex; align-items:center; justify-content:space-between; gap:8mm;
+    font-family:"Helvetica Neue",Arial,sans-serif; color:var(--muted); font-size:3.8mm;
+  }
+  footer.colophon .brand{ color:var(--ink); font-weight:800; letter-spacing:.04em; }
+  footer.colophon .links{ display:flex; gap:6mm; align-items:center; }
+  footer.colophon a{ color:var(--slate); text-decoration:none; border-bottom:0.3mm dotted var(--muted); }
+  footer.colophon .honesty{
+    font-style:italic; color:var(--accent); font-family:Georgia,serif; font-size:3.9mm; max-width:330mm;
+  }
+
+  /* small-caps utility */
+  .sc{ font-variant:small-caps; letter-spacing:.04em; }
+
+  /* ============================================================
+     PRINT — fix to landscape A1, kill screen chrome.
+     ============================================================ */
+  @page{ size:841mm 594mm; margin:0; }
+  @media print{
+    html,body{ background:#fff; }
+    .sheet{ margin:0; box-shadow:none; width:841mm; height:594mm; page-break-after:avoid; }
+  }
+
+  /* Screen down-scaling so the whole A1 sheet is previewable in a normal window.
+     Print is unaffected (the @media print block above keeps true size). */
+  @media screen and (max-width:1700px){
+    .sheet{ transform:scale(.62); transform-origin:top center; margin-bottom:-230mm; }
+  }
+  @media screen and (max-width:1100px){
+    .sheet{ transform:scale(.42); margin-bottom:-345mm; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="masthead">
+    <div class="title-block">
+      <p class="eyebrow">Visual Storytelling · Generative Pipeline</p>
+      <h1><span class="em">eerie</span> — Visual Storytelling from Fine-Tuned<br>Summarization &amp; Image Generation</h1>
+      <p class="subtitle">Illustrating children's stories: a long-context summarizer and a story-trained
+      image model, fine-tuned and published, wired into one sentence-to-panel pipeline.</p>
+    </div>
+    <div class="byline">
+      <div class="authors">
+        Yaren Yıldırım <span class="sid">17011019</span><br>
+        Beyza Nur Sezgin <span class="sid">17011045</span>
+      </div>
+      <div class="meta">
+        <b>Yıldız Technical University</b><br>
+        Computer Engineering · Senior Thesis 2023<br>
+        Advisor: <b>Lect. Furkan Çakmak</b>
+      </div>
+      <div class="anadol">inspired by Refik Anadol</div>
+    </div>
+  </header>
+
+  <!-- ===================== MAIN ===================== -->
+  <main>
+
+    <!-- ---------- PIPELINE (left, row 1) ---------- -->
+    <section class="panel col-left">
+      <div class="panel-head">
+        <span class="n">1</span>
+        <h2>The Pipeline</h2>
+        <span class="sub">story &rarr; summary &rarr; panel-per-sentence &rarr; styled</span>
+      </div>
+      <div class="pipeline-wrap">
+        <!-- Inline SVG pipeline diagram -->
+        <svg class="pipeline-svg" viewBox="0 0 1180 360" role="img"
+             aria-label="Pipeline: a story is summarized by a fine-tuned LSG-BART, split into one sentence per scene, each sentence is generated as an image by a fine-tuned Stable Diffusion 2.1 trained on VIST, and every panel is optionally restyled by InstructPix2Pix.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#2f6f6a"/>
+            </marker>
+            <style>
+              .nbox{ fill:#ffffff; stroke:#14213d; stroke-width:2; rx:10; }
+              .nbox-core{ fill:#f1f8f6; stroke:#1f4e4a; stroke-width:2.6; }
+              .ttl{ font-family:'Helvetica Neue',Arial,sans-serif; font-weight:800; font-size:20px; fill:#14213d; }
+              .ttl-core{ fill:#1f4e4a; }
+              .mdl{ font-family:'SFMono-Regular',Menlo,Consolas,monospace; font-size:15px; fill:#2f6f6a; font-weight:700; }
+              .sml{ font-family:'Helvetica Neue',Arial,sans-serif; font-size:13px; fill:#6b7689; }
+              .flow{ stroke:#2f6f6a; stroke-width:2.4; fill:none; }
+              .flowlbl{ font-family:'Helvetica Neue',Arial,sans-serif; font-size:12.5px; fill:#3a4a63; font-style:italic; }
+              .badge{ font-family:'Helvetica Neue',Arial,sans-serif; font-weight:800; font-size:11px; letter-spacing:.6px; }
+            </style>
+          </defs>
+
+          <!-- INPUT: story -->
+          <g>
+            <rect class="nbox" x="8"  y="146" width="150" height="68" rx="10"/>
+            <text class="ttl"  x="83" y="176" text-anchor="middle">Story</text>
+            <text class="sml"  x="83" y="196" text-anchor="middle">children&#8217;s tale (text)</text>
+          </g>
+          <path class="flow" d="M158,180 L200,180" marker-end="url(#arrow)"/>
+
+          <!-- STEP 1: Summarize (CORE) -->
+          <g>
+            <rect class="nbox-core" x="202" y="120" width="214" height="120" rx="10"/>
+            <rect x="202" y="120" width="78" height="22" rx="6" fill="#1f4e4a"/>
+            <text class="badge" x="241" y="135" text-anchor="middle" fill="#d8efe9">CORE</text>
+            <text class="ttl ttl-core" x="309" y="170" text-anchor="middle">Summarize</text>
+            <text class="mdl" x="309" y="192" text-anchor="middle">ektvho/bart-cnn</text>
+            <text class="sml" x="309" y="211" text-anchor="middle">fine-tuned LSG-BART</text>
+            <text class="sml" x="309" y="228" text-anchor="middle">4096-token long context</text>
+          </g>
+          <path class="flow" d="M416,180 L460,180" marker-end="url(#arrow)"/>
+          <text class="flowlbl" x="438" y="172" text-anchor="middle">summary</text>
+
+          <!-- STEP 2: Split into scenes -->
+          <g>
+            <rect class="nbox" x="462" y="132" width="170" height="96" rx="10"/>
+            <text class="ttl" x="547" y="170" text-anchor="middle">Split</text>
+            <text class="sml" x="547" y="190" text-anchor="middle">one sentence</text>
+            <text class="sml" x="547" y="207" text-anchor="middle">= one scene</text>
+          </g>
+          <path class="flow" d="M632,180 L676,180" marker-end="url(#arrow)"/>
+          <text class="flowlbl" x="654" y="172" text-anchor="middle">scenes[ ]</text>
+
+          <!-- STEP 3: Generate (CORE) -->
+          <g>
+            <rect class="nbox-core" x="678" y="120" width="224" height="120" rx="10"/>
+            <rect x="678" y="120" width="78" height="22" rx="6" fill="#1f4e4a"/>
+            <text class="badge" x="717" y="135" text-anchor="middle" fill="#d8efe9">CORE</text>
+            <text class="ttl ttl-core" x="790" y="170" text-anchor="middle">Generate</text>
+            <text class="mdl" x="790" y="192" text-anchor="middle">ektvho/sd-vist</text>
+            <text class="sml" x="790" y="211" text-anchor="middle">SD 2.1 fine-tuned on VIST</text>
+            <text class="sml" x="790" y="228" text-anchor="middle">one image / sentence · 768&#215;768</text>
+          </g>
+          <path class="flow" d="M902,180 L946,180" marker-end="url(#arrow)"/>
+          <text class="flowlbl" x="924" y="172" text-anchor="middle">panels</text>
+
+          <!-- STEP 4: Style -->
+          <g>
+            <rect class="nbox" x="948" y="120" width="224" height="120" rx="10"/>
+            <text class="ttl" x="1060" y="166" text-anchor="middle">Style</text>
+            <text class="mdl" x="1060" y="188" text-anchor="middle">instruct-pix2pix</text>
+            <text class="sml" x="1060" y="207" text-anchor="middle">timbrooks/instruct-pix2pix</text>
+            <text class="sml" x="1060" y="224" text-anchor="middle">restyle every panel</text>
+          </g>
+
+          <!-- Output rail beneath generate/style -->
+          <path class="flow" d="M790,240 L790,286 L1060,286 L1060,240" marker-end="url(#arrow)"/>
+          <text class="sml" x="925" y="306" text-anchor="middle" style="font-style:italic">illustrated storybook &#8212; one panel per sentence</text>
+
+          <!-- Footnote band: data trained on -->
+          <g>
+            <rect x="202" y="20" width="700" height="34" rx="8" fill="#eef1f6" stroke="#c9d2de" stroke-width="1.2"/>
+            <text class="sml" x="216" y="42" font-weight="700" fill="#3a4a63">TRAINED ON</text>
+            <text class="sml" x="330" y="42">cnn_dailymail&#160;&#160;&#183;&#160;&#160;VIST (Visual Storytelling)&#160;&#160;&#183;&#160;&#160;custom children&#8217;s-story set</text>
+          </g>
+          <path class="flow" d="M309,54 L309,120" stroke-dasharray="3 4" marker-end="url(#arrow)"/>
+          <path class="flow" d="M790,54 L790,120" stroke-dasharray="3 4" marker-end="url(#arrow)"/>
+        </svg>
+
+        <p class="pipe-note">
+          <b>Two of the four stages are models we fine-tuned ourselves</b> and published to the Hugging Face Hub
+          (<span class="sc">core</span>, teal). Summarization gives the image model a coherent, length-controlled
+          script; generation renders each sentence independently. The thesis pipeline (<code style="font-family:monospace;font-size:3.8mm">eerie.ipynb</code>)
+          chains them end to end &mdash; story &rarr; <span class="sc">bart-cnn</span> &rarr; <span class="sc">sd-vist</span> &rarr; InstructPix2Pix.
+        </p>
+      </div>
+    </section>
+
+    <!-- ---------- FINE-TUNED & PUBLISHED (right, row 1) ---------- -->
+    <section class="panel col-right">
+      <div class="panel-head">
+        <span class="n">2</span>
+        <h2>Fine-Tuned &amp; Published</h2>
+        <span class="sub">on Hugging Face</span>
+      </div>
+      <div class="models">
+
+        <!-- bart-cnn -->
+        <div class="model-card">
+          <div class="mc-top">
+            <span class="repo">ektvho/bart-cnn</span>
+            <span class="role">Summarizer</span>
+            <a class="hf" href="https://huggingface.co/ektvho/bart-cnn">huggingface.co/ektvho/bart-cnn</a>
+          </div>
+          <dl>
+            <dt>Base</dt>
+            <dd><code>ccdv/lsg-bart-base-4096-booksum</code> &mdash; an LSG-BART with a 4096-token long context (loaded with <code>trust_remote_code=True</code> for LSG attention)</dd>
+            <dt>Trained&nbsp;on</dt>
+            <dd class="ds"><b>cnn_dailymail</b></dd>
+            <dt>Role</dt>
+            <dd>Condense a story into a coherent script before it is split sentence-by-sentence</dd>
+          </dl>
+        </div>
+
+        <!-- sd-vist -->
+        <div class="model-card">
+          <div class="mc-top">
+            <span class="repo">ektvho/sd-vist</span>
+            <span class="role">Image generator</span>
+            <a class="hf" href="https://huggingface.co/ektvho/sd-vist">huggingface.co/ektvho/sd-vist</a>
+          </div>
+          <dl>
+            <dt>Base</dt>
+            <dd><code>Stable Diffusion 2.1</code> &mdash; native 768&#215;768 resolution</dd>
+            <dt>Trained&nbsp;on</dt>
+            <dd class="ds"><b>VIST</b> &mdash; the Visual Storytelling dataset</dd>
+            <dt>Role</dt>
+            <dd>Render one storybook illustration per sentence, tuned toward narrative imagery</dd>
+          </dl>
+        </div>
+
+        <!-- style transfer (off-the-shelf, honest) -->
+        <div class="style-transfer-row">
+          <span class="lbl">Style&nbsp;transfer</span>
+          <code>timbrooks/instruct-pix2pix</code>
+          <span class="desc">off-the-shelf · restyles every panel from one instruction</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- RESEARCH PROGRESSION (row 2, full width) ---------- -->
+    <section class="progression">
+      <div class="panel-head">
+        <span class="n">3</span>
+        <h2>Research Progression</h2>
+        <span class="sub">one fine-tuned core, two extensions</span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-step s-core">
+          <div class="stage">Stage 01 · The thesis</div>
+          <h3>Fine-tuned storytelling pipeline</h3>
+          <p>Our own <span class="sc">bart-cnn</span> + <span class="sc">sd-vist</span> (SD 2.1 / VIST), summarize &rarr; generate per sentence &rarr; InstructPix2Pix. The fine-tuned models <em>are</em> the contribution.</p>
+          <span class="tagline">Core · fine-tuned by us</span>
+        </div>
+        <div class="prog-step s-ext">
+          <div class="stage">Stage 02 · Extension</div>
+          <h3>Multi-style, swappable looks</h3>
+          <p>An importable package swaps off-the-shelf <b>SD 1.5</b> checkpoints (Ghibli · modern-animation · watercolor) to render the same story in three art styles &mdash; breadth, not the thesis model.</p>
+          <span class="tagline">Extension · off-the-shelf SD 1.5</span>
+        </div>
+        <div class="prog-step s-ext">
+          <div class="stage">Stage 03 · Extension</div>
+          <h3>Character consistency</h3>
+          <p>A ComfyUI <b>IPAdapter</b> workflow (SD 1.5, DreamShaper) targets the open problem the core pipeline leaves unsolved: keeping one character on-model across panels. Real before / after.</p>
+          <span class="tagline">Extension · IPAdapter demo</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- RESULTS (row 2 continues — placed as part of grid below progression via order) ---------- -->
+  </main>
+
+  <!-- ===================== RESULTS (full-width band under main grid) ===================== -->
+  <section class="panel" style="margin-top:8mm;">
+    <div class="panel-head">
+      <span class="n">4</span>
+      <h2>Results</h2>
+      <span class="sub">core output · extension outputs</span>
+    </div>
+    <div class="results-grid">
+
+      <!-- LEFT: Pip example (thesis pipeline) -->
+      <div class="result-block">
+        <p class="rb-head">From story to panels <span class="pill core">Core · sd-vist</span></p>
+        <p class="rb-sub">The thesis pipeline summarizes the tale, then generates one illustration per sentence.</p>
+        <div class="story-card">
+          <p class="q">&ldquo;Pip&rsquo;s Whirlwind Adventure&rdquo; &mdash; a curious penguin sets out across the ice and the open sea.</p>
+          <p class="cite">Input story &middot; summarized by <b>ektvho/bart-cnn</b>, illustrated sentence-by-sentence by <b>ektvho/sd-vist</b> (SD 2.1 · VIST · 768&#215;768)</p>
+        </div>
+        <div class="imgrow">
+          <figure class="frame">
+            <div class="imgbox" data-ph="panel — Pip sets out (sd-vist, SD 2.1 / VIST)">
+              <img src="../assets/thesis/pip_panel_0.png" alt="Generated storybook panel: an opening scene from Pip's adventure, rendered by the VIST-fine-tuned Stable Diffusion 2.1 model.">
+            </div>
+            <figcaption>Scene 1 &mdash; <b>sd-vist</b> panel</figcaption>
+          </figure>
+          <figure class="frame">
+            <div class="imgbox" data-ph="panel — Pip by the water (sd-vist, SD 2.1 / VIST)">
+              <img src="../assets/thesis/pip_panel_3.png" alt="Generated storybook panel: a later scene from Pip's adventure, one illustration per sentence from the VIST-fine-tuned model.">
+            </div>
+            <figcaption>Scene 2 &mdash; <b>sd-vist</b> panel</figcaption>
+          </figure>
+          <figure class="frame">
+            <div class="imgbox" data-ph="panel — Pip's destination (sd-vist, SD 2.1 / VIST)">
+              <img src="../assets/thesis/pip_panel_5.png" alt="Generated storybook panel: a closing scene from Pip's adventure, generated independently from its own sentence.">
+            </div>
+            <figcaption>Scene 3 &mdash; <b>sd-vist</b> panel</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- RIGHT: Character consistency before/after (extension) -->
+      <div class="result-block">
+        <p class="rb-head">Character consistency, before &amp; after <span class="pill ext">Extension · IPAdapter</span></p>
+        <p class="rb-sub">The core pipeline generates each panel independently, so a character drifts. The ComfyUI IPAdapter extension re-anchors it.</p>
+        <div class="imgrow">
+          <figure class="frame">
+            <div class="imgbox" data-ph="before — same character, drifting across independent panels">
+              <img src="../assets/consistency-before.png" alt="Before: a story character rendered without the IPAdapter (weight 0.0), where appearance drifts and the reference character is not preserved.">
+            </div>
+            <figcaption><b>Before</b> &mdash; independent panels, appearance drifts</figcaption>
+          </figure>
+          <div class="arrowcol">
+            <div class="ar">&rarr;</div>
+            <div class="ar-lbl">IPAdapter</div>
+          </div>
+          <figure class="frame">
+            <div class="imgbox" data-ph="after — IPAdapter re-anchors the character (SD 1.5 · DreamShaper)">
+              <img src="../assets/consistency-after.png" alt="After: the same character kept on-model by an IPAdapter ComfyUI workflow (weight 0.8) on SD 1.5 DreamShaper.">
+            </div>
+            <figcaption><b>After</b> &mdash; IPAdapter, character held on-model</figcaption>
+          </figure>
+        </div>
+        <p style="font-size:3.6mm;color:var(--muted);margin:3mm 0 0 0;line-height:1.4;border-top:0.4mm dotted var(--line);padding-top:2.5mm;">
+          Multi-style breadth (Ghibli · modern-animation · watercolor) and the IPAdapter consistency demo both run on
+          off-the-shelf <span class="sc">SD&nbsp;1.5</span> &mdash; <b>extensions</b> around the fine-tuned core, never a substitute for it.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="colophon">
+    <span class="brand">eerie</span>
+    <span class="honesty">Core contribution = two models we fine-tuned and published (LSG-BART summarizer · SD 2.1 trained on VIST). SD 1.5 multi-style and IPAdapter are labelled extensions.</span>
+    <span class="links">
+      <a href="https://huggingface.co/ektvho/bart-cnn">hf.co/ektvho/bart-cnn</a>
+      <a href="https://huggingface.co/ektvho/sd-vist">hf.co/ektvho/sd-vist</a>
+      <span>YTU · Computer Engineering · 2023</span>
+    </span>
+  </footer>
+
+</div>
+</body>
+</html>
